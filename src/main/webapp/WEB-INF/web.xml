@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+  <display-name>pdfcreator</display-name>
+  <servlet>
+    <servlet-name>FromHtml</servlet-name>
+    <servlet-class>br.com.seniocaires.pdfcreator.servlet.FromHtml</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FromHtml</servlet-name>
+    <url-pattern>/fromhtml</url-pattern>
+  </servlet-mapping>
+</web-app>
