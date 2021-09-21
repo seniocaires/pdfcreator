@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -86,6 +87,36 @@ public class FromHtml extends HttpServlet {
    *           -
    */
   public final void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-    doGet(request, response);
+    //doGet(request, response);
+	  
+	  String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+	  
+	  OutputStream out = response.getOutputStream();
+	    try {
+	      response.setContentType("application/pdf");
+	      ITextRenderer renderer = new ITextRenderer();
+	      ResourceLoaderUserAgent callback = new ResourceLoaderUserAgent(renderer.getOutputDevice());
+	      callback.setSharedContext(renderer.getSharedContext());
+	      renderer.getSharedContext().setUserAgentCallback(callback);
+	      Tidy tidy = new Tidy();
+	      tidy.setShowErrors(0);
+	      tidy.setQuiet(true);
+	      tidy.setInputEncoding("UTF-8");
+	      tidy.setOutputEncoding("UTF-8");
+	      tidy.setWraplen(Integer.MAX_VALUE);
+	      tidy.setPrintBodyOnly(true);
+	      tidy.setXmlOut(true);
+	      tidy.setSmartIndent(true);
+	      ByteArrayInputStream inputStream = new ByteArrayInputStream(AppUtil.nuloParaVazio(body).getBytes("UTF-8"));
+	      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	      Document documento = tidy.parseDOM(inputStream, outputStream);
+	      renderer.setDocument(documento, "file:///" + request.getSession().getServletContext().getRealPath(File.separator));
+	      renderer.layout();
+	      renderer.createPDF(out);
+	    } catch (Exception exception) {
+	      Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, exception.getMessage(), exception);
+	    } finally {
+	      out.close();
+	    }
   }
 }
